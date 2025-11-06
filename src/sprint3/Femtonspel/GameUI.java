@@ -1,40 +1,79 @@
 package sprint3.Femtonspel;
 
-public class GameUI {
-/**
-  Fält:
-    [ ] frame : JFrame
-    [ ] gridPanel : JPanel (GridLayout 4x4)
-    [ ] buttons : JButton[4][4]
-    [ ] newGameButton : JButton
-    [ ] controller : GameController
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-  TODO:
+public class GameUI extends JFrame {
+    private final GameController controller;
+    private final JButton[][] buttons = new JButton[4][4];
+    private final JPanel boardPanel = new JPanel(new GridLayout(4, 4, 5, 5));
+    private final JLabel status = new JLabel(" ", SwingConstants.CENTER);
 
-  [ ] Konstruktor GameUI():
-        - Skapa nytt JFrame("15-spelet")
-        - Skapa gridPanel med GridLayout(4,4)
-        - För varje rad/kolumn:
-             [ ] Skapa JButton
-             [ ] Lägg till actionListener som anropar controller.onTileClicked(r, c)
-             [ ] Lägg till knappen i gridPanel och buttons-array
-        - Skapa "Nytt spel"-knapp
-             [ ] Lägg till actionListener som anropar controller.onNewGame()
-        - Lägg till paneler i frame (CENTER/SOUTH)
-        - pack() och setDefaultCloseOperation(EXIT_ON_CLOSE)
+    public GameUI(GameController controller) {
+        this.controller = controller;
+        setTitle("15-spelet");
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(420, 500);
+        setLocationRelativeTo(null);
 
-  [ ] setController(controller):
-        - Spara controller i fältet
+        // Grid med knappar
+        for (int r = 0; r < 4; r++) {
+            for (int c = 0; c < 4; c++) {
+                JButton btn = new JButton();
+                btn.setFont(new Font("Arial", Font.BOLD, 24));
+                btn.addActionListener(new TileClickListener(r, c));
+                buttons[r][c] = btn;
+                boardPanel.add(btn);
+            }
+        }
 
-  [ ] updateBoard(board):
-        - För varje knapp i buttons:
-            [ ] Hämta tile från board
-            [ ] Uppdatera knappens text till tile.toString()
+        // Kontrollpanel
+        JPanel controls = new JPanel(new BorderLayout());
+        JButton newGame = new JButton("Nytt spel");
+        newGame.addActionListener(e -> controller.newGame());
+        controls.add(newGame, BorderLayout.CENTER);
+        controls.add(status, BorderLayout.SOUTH);
 
-  [ ] showWinMessage(moves):
-        - Visa JOptionPane.showMessageDialog med "Grattis, du vann på X drag!"
+        getContentPane().setLayout(new BorderLayout(8, 8));
+        getContentPane().add(boardPanel, BorderLayout.CENTER);
+        getContentPane().add(controls, BorderLayout.SOUTH);
+    }
 
-  [ ] show():
-        - Gör frame synlig (setVisible(true))
-*/
+    public void updateBoard() {
+        Board board = controller.getBoard();
+        for (int r = 0; r < board.getSize(); r++) {
+            for (int c = 0; c < board.getSize(); c++) {
+                Tile t = board.getTile(r, c);
+                JButton b = buttons[r][c];
+                b.setText(t.isEmpty() ? "" : String.valueOf(t.getValue()));
+                b.setEnabled(!t.isEmpty());
+            }
+        }
+        status.setText("Drag: " + controller.getMoves());
+        repaint();
+    }
+
+    public void showWinMessage(int moves) {
+        JOptionPane.showMessageDialog(this, "Grattis, du vann! Drag: " + moves);
+    }
+
+    public void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Fel", JOptionPane.WARNING_MESSAGE);
+    }
+
+    private class TileClickListener implements ActionListener {
+        private final int row, col;
+
+        private TileClickListener(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            controller.handleTileClick(row, col);
+        }
+    }
 }

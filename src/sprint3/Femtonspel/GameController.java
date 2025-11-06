@@ -1,29 +1,42 @@
 package sprint3.Femtonspel;
 
-public class GameController {
-/**
-  Fält:
-    [ ] board : Board
-    [ ] ui : GameUI
-    [ ] moves : int = 0
+public class GameController { //
+    private final Board board;
+    private GameUI ui;
+    private int moves = 0;
 
-  TODO:
+    public GameController() {
+        this.board = new Board();
+    }
 
-  [ ] Konstruktor GameController(Board, GameUI)
-        - Spara båda i fälten
+    public void setUI(GameUI ui) {
+        this.ui = ui;
+    }
 
-  [ ] onTileClicked(r, c):
-        - Försök flytta brickan genom board.moveTile(r, c)
-        - Fånga ev. InvalidMoveException och ignorera (brickan ej intill tom)
-        - Om flytt lyckas:
-             [ ] Öka moves++
-             [ ] Uppdatera UI med ui.updateBoard(board)
-             [ ] Om board.isSolved() == true
-                  [ ] Anropa ui.showWinMessage(moves)
+    public Board getBoard() {
+        return board;
+    }
 
-  [ ] onNewGame():
-        - Anropa board.shuffle()
-        - Nollställ moves = 0
-        - Uppdatera UI med ui.updateBoard(board)
-*/
+    public int getMoves() {
+        return moves;
+    }
+
+    public void newGame() {
+        board.shuffle();
+        moves = 0;
+        if (ui != null) ui.updateBoard();
+    }
+
+    public void handleTileClick(int row, int col) {
+        try {
+            board.moveTile(row, col);
+            moves++;
+            if (ui != null) ui.updateBoard();
+            if (board.isSolved()) {
+                if (ui != null) ui.showWinMessage(moves);
+            }
+        } catch (InvalidMoveException ex) {
+            if (ui != null) ui.showError(ex.getMessage());
+        }
+    }
 }

@@ -1,14 +1,13 @@
 package sprint3.Femtonspel;
 
 public class Main {
-/**
-  [ ] Skapa main-metod
-  [ ] Inuti main:
-      [ ] Skapa Board-objekt
-      [ ] Skapa GameUI-objekt
-      [ ] Skapa GameController med Board och GameUI
-      [ ] Länka ihop: ui.setController(controller)
-      [ ] Anropa controller.onNewGame() för att starta nytt spel
-      [ ] Visa användargränssnittet
-*/
+    public static void main(String[] args) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            GameController controller = new GameController();
+            GameUI ui = new GameUI(controller);
+            controller.setUI(ui);
+            controller.newGame();
+            ui.setVisible(true);
+        });
+    }
 }

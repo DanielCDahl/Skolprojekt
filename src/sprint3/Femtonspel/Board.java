@@ -1,54 +1,104 @@
 package sprint3.Femtonspel;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Board {
-/**
-  Fält:
-    [ ] rows : int = 4
-    [ ] cols : int = 4
-    [ ] tiles : Tile[4][4]
 
-  TODO:
+    private static final int SIZE = 4;
+    private final Tile[][] tiles = new Tile[SIZE][SIZE];
+    private final Random rnd = new Random();
 
-  [ ] Konstruktor:
-        - Anropa initSolved()
+    public Board() {
+        initSolved();
+    }
 
-  [ ] initSolved():
-        - Fyll brädet med brickor i nummerordning 1–15
-        - Sista positionen (3,3) ska vara tom (id = 0)
+    public int getSize() {
+        return SIZE;
+    }
 
-  [ ] getTile(r, c):
-        - Returnera tiles[r][c]
+    public Tile getTile(int r, int c) {
+        return tiles[r][c];
+    }
 
-  [ ] findEmpty():
-        - Loopa igenom alla positioner
-        - Returnera (r, c) för brickan som är tom (id == 0)
+    public void initSolved() {
+        int val = 1;
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (r == SIZE - 1 && c == SIZE - 1) {
+                    tiles[r][c] = new Tile(0); // tom
+                } else {
+                    tiles[r][c] = new Tile(val++);
+                }
+            }
+        }
+    }
 
-  [ ] canMove(r, c):
-        - Hämta tomma brickans koordinater (emptyR, emptyC)
-        - Returnera true om (r, c) ligger precis intill tomma brickan
-          d.v.s. |emptyR - r| == 1 och emptyC == c
-                  eller |emptyC - c| == 1 och emptyR == r
+    public int[] findEmpty() {
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (tiles[r][c].isEmpty()) return new int[]{r, c};
+            }
+        }
+        return new int[]{SIZE - 1, SIZE - 1};
+    }
 
-  [ ] moveTile(r, c):
-        - Om canMove(r, c) == false → kasta InvalidMoveException
-        - Annars byt plats på tiles[r][c] och den tomma brickan
-        - Returnera true efter bytet
+    public boolean canMove(int r, int c) {
+        int[] e = findEmpty();
+        int er = e[0], ec = e[1];
+        return (Math.abs(er - r) == 1 && ec == c) || (Math.abs(ec - c) == 1 && er == r);
+    }
 
-  [ ] shuffle():
-        - Anropa initSolved() för att börja från korrekt ordning
-        - Upprepa t.ex. 1000 gånger:
-            [ ] Hitta tom ruta
-            [ ] Lista giltiga grannar (upp, ner, vänster, höger)
-            [ ] Välj slumpmässig granne
-            [ ] Anropa moveTile() på den grannen (få giltig blandning)
+    public void moveTile(int r, int c) throws InvalidMoveException {
+        if (!canMove(r, c)) {
+            throw new InvalidMoveException("Ogiltigt drag: brickan ligger inte bredvid den tomma rutan.");
+        }
+        int[] e = findEmpty();
+        int er = e[0], ec = e[1];
+        swap(r, c, er, ec);
+    }
 
-  [ ] isSolved():
-        - expected = 1
-       - Loopa över alla positioner
-            [ ] Om r==3 och c==3 → kontrollera att id == 0
-            [ ] Annars → kontrollera att id == expected
-            [ ] Om något inte stämmer → returnera false
-            [ ] Öka expected
-        - Returnera true om allt stämmer
-*/
+    private void swap(int r1, int c1, int r2, int c2) {
+        Tile tmp = tiles[r1][c1];
+        tiles[r1][c1] = tiles[r2][c2];
+        tiles[r2][c2] = tmp;
+    }
+
+    public void shuffle() {
+        initSolved();
+        int steps = 1000;
+        int pr = SIZE - 1, pc = SIZE - 1; // tomrutan börjar längst ned till höger
+        for (int i = 0; i < steps; i++) {
+            int[] e = findEmpty();
+            pr = e[0];
+            pc = e[1];
+            int[][] neighbors = neighborsOf(pr, pc);
+            int[] choice = neighbors[rnd.nextInt(neighbors.length)];
+            // flytta vald granne in i tomrutan (swap)
+            swap(choice[0], choice[1], pr, pc);
+        }
+    }
+
+    private int[][] neighborsOf(int r, int c) {
+        List<int[]> list = new ArrayList<>();
+        if (r > 0) list.add(new int[]{r - 1, c});
+        if (r < SIZE - 1) list.add(new int[]{r + 1, c});
+        if (c > 0) list.add(new int[]{r, c - 1});
+        if (c < SIZE - 1) list.add(new int[]{r, c + 1});
+        return list.toArray(new int[0][]);
+    }
+
+    public boolean isSolved() {
+        int expected = 1;
+        for (int r = 0; r < SIZE; r++) {
+            for (int c = 0; c < SIZE; c++) {
+                if (r == SIZE - 1 && c == SIZE - 1) {
+                    return tiles[r][c].isEmpty();
+                }
+                if (tiles[r][c].getValue() != expected++) return false;
+            }
+        }
+        return true;
+    }
 }
