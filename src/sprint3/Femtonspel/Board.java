@@ -3,7 +3,7 @@ package sprint3.Femtonspel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
+//Spelets logik och spelbräde
 public class Board {
 
     private static final int SIZE = 4;
@@ -68,14 +68,14 @@ public class Board {
     public void shuffle() {
         initSolved();
         int steps = 1000;
-        int pr = SIZE - 1, pc = SIZE - 1; // tomrutan börjar längst ned till höger
+        int pr, pc; // rutan börjar längst ned till höger
         for (int i = 0; i < steps; i++) {
             int[] e = findEmpty();
             pr = e[0];
             pc = e[1];
             int[][] neighbors = neighborsOf(pr, pc);
             int[] choice = neighbors[rnd.nextInt(neighbors.length)];
-            // flytta vald granne in i tomrutan (swap)
+            // flytta vald granne in i rutan (swap)
             swap(choice[0], choice[1], pr, pc);
         }
     }

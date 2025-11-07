@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+//Sköter användargränssnittet med hjälp av Swing
 public class GameUI extends JFrame {
     private final GameController controller;
     private final JButton[][] buttons = new JButton[4][4];

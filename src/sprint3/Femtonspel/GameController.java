@@ -1,5 +1,5 @@
 package sprint3.Femtonspel;
-
+//Binder ihop Board med GameUI
 public class GameController { //
     private final Board board;
     private GameUI ui;

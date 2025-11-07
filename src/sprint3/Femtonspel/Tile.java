@@ -1,5 +1,5 @@
 package sprint3.Femtonspel;
-
+//Representerar varje enskild bricka i spelet
 public class Tile {
     private final int value;
 
